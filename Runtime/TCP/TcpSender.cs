@@ -21,7 +21,7 @@ namespace HRYooba.Network.Tcp
         private readonly Subject<string> _onSendSubject = new();
 
         public Observable<(string IpAddress, int Port)> OnConnectedObservable => _onConnectedSubject.ObserveOnMainThread();
-        public Observable<(string IpAddress, int Port)> OnDisconnectedObservable => _onDisconnectedSubject.ObserveOnMainThread();
+        public Observable<(string IpAddress, int Port)> OnDisconnectedObservable => _onDisconnectedSubject.Take(1).ObserveOnMainThread();
         public Observable<string> OnSendObservable => _onSendSubject.ObserveOnMainThread();
 
         public TcpSender(string ipAddress, int port)
@@ -57,7 +57,10 @@ namespace HRYooba.Network.Tcp
         public async Task SendAsync(string message, CancellationToken cancellationToken)
         {
             if (_disposed) return;
-            if (!IsConnecting()) return;
+            if (!IsConnecting())
+            {
+                _onDisconnectedSubject.OnNext((_ipAddress, _port));
+            }
 
             try
             {
