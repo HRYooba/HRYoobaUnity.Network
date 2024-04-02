@@ -1,0 +1,16 @@
+{
+    "name": "HRYoobaLibrary.Network",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ffad9a5dbb7e49d40a12675208b436ce"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
