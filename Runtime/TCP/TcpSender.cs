@@ -15,6 +15,7 @@ namespace HRYooba.Network.Tcp
         private readonly TcpClient _client = null;
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         private bool _disposed = false;
+        private bool _isConected = false;
 
         private readonly Subject<(string IpAddress, int Port)> _onConnectedSubject = new();
         private readonly Subject<(string IpAddress, int Port)> _onDisconnectedSubject = new();
@@ -57,9 +58,9 @@ namespace HRYooba.Network.Tcp
         public async Task SendAsync(string message, CancellationToken cancellationToken)
         {
             if (_disposed) return;
-            if (!IsConnecting())
+            while (!_isConected)
             {
-                _onDisconnectedSubject.OnNext((_ipAddress, _port));
+                await Task.Delay(100);
             }
 
             try
@@ -94,6 +95,7 @@ namespace HRYooba.Network.Tcp
             try
             {
                 await _client.ConnectAsync(_ipAddress, _port);
+                _isConected = true;
                 cancellationToken.ThrowIfCancellationRequested();
                 if (!_disposed) _onConnectedSubject.OnNext((_ipAddress, _port));
             }
