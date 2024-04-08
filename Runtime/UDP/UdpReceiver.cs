@@ -8,6 +8,9 @@ using R3;
 
 namespace HRYooba.Network.Udp
 {
+    /// <summary>
+    /// UDP Sender
+    /// </summary>
     public class UdpReceiver : IDisposable
     {
         private readonly UdpClient _client = null;
@@ -17,6 +20,10 @@ namespace HRYooba.Network.Udp
         private readonly Subject<string> _onReceivedSubject = new();
         public Observable<string> OnReceivedObservable => _onReceivedSubject.ObserveOnMainThread();
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="port"></param>
         public UdpReceiver(int port)
         {
             var endPoint = new IPEndPoint(IPAddress.Any, port);
@@ -25,8 +32,15 @@ namespace HRYooba.Network.Udp
             Task.Run(() => ReceiveAsync(_cancellationTokenSource.Token));
         }
 
+        /// <summary>
+        /// Destructor
+        /// </summary>
+        /// <returns></returns>
         ~UdpReceiver() => Dispose();
 
+        /// <summary>
+        /// Dispose
+        /// </summary>
         public void Dispose()
         {
             if (_disposed) return;
@@ -38,6 +52,11 @@ namespace HRYooba.Network.Udp
             _onReceivedSubject.Dispose();
         }
 
+        /// <summary>
+        /// ReceiveAsync
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         private async Task ReceiveAsync(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
@@ -48,7 +67,7 @@ namespace HRYooba.Network.Udp
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var message = Encoding.UTF8.GetString(result.Buffer);
-                    if (!_disposed) _onReceivedSubject.OnNext(message);
+                    _onReceivedSubject.OnNext(message);
                 }
                 catch
                 {

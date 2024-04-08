@@ -9,6 +9,9 @@ using R3;
 
 namespace HRYooba.Network.Tcp
 {
+    /// <summary>
+    /// TCP Receiver
+    /// </summary>
     public class TcpReceiver : IDisposable
     {
         private readonly int _bufferSize = 1024;
@@ -19,11 +22,16 @@ namespace HRYooba.Network.Tcp
         private readonly Subject<string> _onConnectedSubject = new();
         private readonly Subject<string> _OnDisconnectedSubject = new();
         private readonly Subject<string> _onReceivedSubject = new();
-
+        
         public Observable<string> OnConnectedObservable => _onConnectedSubject.ObserveOnMainThread();
         public Observable<string> OnDisconnectedObservable => _OnDisconnectedSubject.ObserveOnMainThread();
         public Observable<string> OnReceivedObservable => _onReceivedSubject.ObserveOnMainThread();
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="port"></param>
+        /// <param name="bufferSize"></param>
         public TcpReceiver(int port, int bufferSize = 1024)
         {
             _bufferSize = bufferSize;
@@ -33,8 +41,15 @@ namespace HRYooba.Network.Tcp
             Task.Run(() => AcceptClientsAsync(_cancellationTokenSource.Token));
         }
 
+        /// <summary>
+        /// Destructor
+        /// </summary>
+        /// <returns></returns>
         ~TcpReceiver() => Dispose();
 
+        /// <summary>
+        /// Dispose
+        /// </summary>
         public void Dispose()
         {
             if (_disposed) return;
@@ -48,6 +63,11 @@ namespace HRYooba.Network.Tcp
             _onReceivedSubject.Dispose();
         }
 
+        /// <summary>
+        /// AcceptClientsAsync
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         private async Task AcceptClientsAsync(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
@@ -56,7 +76,7 @@ namespace HRYooba.Network.Tcp
                 {
                     var client = await _listener.AcceptTcpClientAsync();
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (!_disposed) _onConnectedSubject.OnNext(client.ToIPAddressString());
+                    _onConnectedSubject.OnNext(client.ToIPAddressString());
 
                     _ = ReceiveAsync(client, cancellationToken);
                 }
@@ -71,6 +91,12 @@ namespace HRYooba.Network.Tcp
             }
         }
 
+        /// <summary>
+        /// ReceiveAsync
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         private async Task ReceiveAsync(TcpClient client, CancellationToken cancellationToken)
         {
             using (client)
@@ -84,9 +110,10 @@ namespace HRYooba.Network.Tcp
                 }
 
                 // 通信切断されたとき
+                cancellationToken.ThrowIfCancellationRequested();
                 try
                 {
-                    if (!_disposed) _OnDisconnectedSubject.OnNext(client.ToIPAddressString());
+                    _OnDisconnectedSubject.OnNext(client.ToIPAddressString());
                 }
                 catch
                 {
@@ -95,6 +122,12 @@ namespace HRYooba.Network.Tcp
             }
         }
 
+        /// <summary>
+        /// ReadAsync
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         private async Task<bool> ReadAsync(Stream stream, CancellationToken cancellationToken)
         {
             var dataBuffer = new StringBuilder();
@@ -117,8 +150,9 @@ namespace HRYooba.Network.Tcp
                     return false;
                 }
 
+                cancellationToken.ThrowIfCancellationRequested();
                 var message = dataBuffer.ToString();
-                if (!_disposed) _onReceivedSubject.OnNext(message);
+                _onReceivedSubject.OnNext(message);
                 return true;
             }
 

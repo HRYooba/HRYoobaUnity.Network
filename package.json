@@ -1,7 +1,7 @@
 {
   "name": "com.hryooba.library.network",
   "displayName": "HRYoobaLibrary.Network",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "unity": "2021.3",
   "description": "Unity HRYooba Library\nMy Network (TCP/UDP)",
   "author": {
