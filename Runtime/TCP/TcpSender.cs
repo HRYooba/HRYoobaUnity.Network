@@ -45,13 +45,13 @@ namespace HRYooba.Network.Tcp
 
             _ = ConnectAsync(_cancellationTokenSource.Token);
         }
-        
+
         /// <summary>
         /// Destructor
         /// </summary>
         /// <returns></returns>
         ~TcpSender() => Dispose();
-        
+
         /// <summary>
         /// Dispose
         /// </summary>
@@ -89,8 +89,11 @@ namespace HRYooba.Network.Tcp
         public async Task SendAsync(string message, CancellationToken cancellationToken)
         {
             if (_disposed) return;
+
+            var connectFailedTask = _onConnectionFailedSubject.FirstAsync(cancellationToken);
             while (!_client.Connected)
             {
+                if (connectFailedTask.IsCompleted) throw new Exception("[TcpSender] SendAsync: Connection failed.");
                 await Task.Delay(100, cancellationToken);
             }
 
