@@ -19,6 +19,7 @@ namespace HRYooba.Network.Tcp
         private readonly TcpClient _client = null;
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         private bool _disposed = false;
+        private bool _isConnectionFailed = false;
 
         private readonly Subject<(string IpAddress, int Port)> _onConnectedSubject = new();
         private readonly Subject<(string IpAddress, int Port)> _onConnectionFailedSubject = new();
@@ -42,6 +43,8 @@ namespace HRYooba.Network.Tcp
             _ipAddress = ipAddress;
             _port = port;
             _timeout = conectTimeout;
+
+            _onConnectionFailedSubject.Subscribe(_ => _isConnectionFailed = true);
 
             _ = ConnectAsync(_cancellationTokenSource.Token);
         }
@@ -90,10 +93,9 @@ namespace HRYooba.Network.Tcp
         {
             if (_disposed) return;
 
-            var connectFailedTask = _onConnectionFailedSubject.FirstAsync(cancellationToken);
             while (!_client.Connected)
             {
-                if (connectFailedTask.IsCompleted) throw new Exception("[TcpSender] SendAsync: Connection failed.");
+                if (_isConnectionFailed) throw new Exception("[TcpSender] SendAsync: Connection failed.");
                 await Task.Delay(100, cancellationToken);
             }
 

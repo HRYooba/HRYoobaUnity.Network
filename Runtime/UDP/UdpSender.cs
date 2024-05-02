@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using System.Net.Sockets;
 using System.Threading;
@@ -9,7 +10,7 @@ namespace HRYooba.Network.Udp
     /// <summary>
     /// UDP Sender
     /// </summary>
-    public class UdpSender
+    public class UdpSender : IDisposable
     {
         private readonly UdpClient _client = null;
         private readonly CancellationTokenSource _cancellationTokenSource = new();
@@ -56,7 +57,7 @@ namespace HRYooba.Network.Udp
         public void Send(string message)
         {
             if (_disposed) return;
-            
+
             _ = SendAsync(message, _cancellationTokenSource.Token);
         }
 
@@ -69,7 +70,7 @@ namespace HRYooba.Network.Udp
         public async Task SendAsync(string message, CancellationToken cancellationToken)
         {
             if (_disposed) return;
-            
+
             var bytes = Encoding.UTF8.GetBytes(message);
             await _client.SendAsync(bytes, bytes.Length);
             cancellationToken.ThrowIfCancellationRequested();
