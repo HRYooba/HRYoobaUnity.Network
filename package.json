@@ -1,7 +1,7 @@
 {
   "name": "com.hryooba.library.network",
   "displayName": "HRYoobaLibrary.Network",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "unity": "2021.3",
   "description": "Unity HRYooba Library\nMy Network (TCP/UDP)",
   "author": {
@@ -10,6 +10,7 @@
   "type": "library",
   "dependencies": {
     "com.cysharp.unitask": "2.5.3",
-    "com.cysharp.r3": "1.1.2"
+    "com.cysharp.r3": "1.1.2",
+    "org.nuget.r3": "1.2.8"
   }
 }
