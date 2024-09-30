@@ -1,5 +1,5 @@
 {
-    "name": "HRYoobaLibrary.Network.Tcp",
+    "name": "HRYooba.Network.Udp",
     "rootNamespace": "",
     "references": [
         "GUID:77221876cc6b8244180b96e320b1bcd4"
